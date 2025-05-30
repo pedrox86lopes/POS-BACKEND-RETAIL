@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS System - Sales History</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); max-width: 900px; margin: auto; }
+        h1, h2 { color: #333; }
+        nav { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        nav .nav-links a { margin-right: 15px; text-decoration: none; color: #007bff; font-weight: bold; }
+        nav .nav-links a:hover { text-decoration: underline; }
+        nav .user-info { font-size: 0.9em; color: #555; }
+        nav .user-info strong { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .flash-message { padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .flash-message.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .flash-message.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>POS System Backend Demo</h1>
+        <nav>
+            <div class="nav-links">
+                <a href="/">Products</a> |
+                <a href="/make_sale">Make Sale</a> |
+                <a href="/sales_history">Sales History</a>
+            </div>
+            <div class="user-info">
+                {% if user %}
+                    Logged in as: <strong>{{ user.username }}</strong> (Role: <strong>{{ role }}</strong>) |
+                    <a href="/logout">Logout</a>
+                {% else %}
+                    <a href="/login">Login</a>
+                {% endif %}
+            </div>
+        </nav>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <h2>Sales History</h2>
+        {% if sales %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Sale ID</th>
+                    <th>Date</th>
+                    <th>Total Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sale in sales %}
+                <tr>
+                    <td>{{ sale.id }}</td>
+                    <td>{{ sale.sale_date }}</td>
+                    <td>${{ "%.2f"|format(sale.total_amount) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No sales recorded yet.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
