@@ -2,20 +2,20 @@
 Simple Retail POS Backend with Flask
 
 ## Goal: To manage products, process sales, and track inventory.
-Technologies:
-Python: The programming language.
-Flask: A lightweight web framework for Python.
-SQLite: A file-based SQL database, perfect for simple, local projects. No external database server setup required.
-HTML/CSS (minimal): For the basic web interface.
+<p>Technologies:
+<p>Python: The programming language.
+<p>Flask: A lightweight web framework for Python.
+<p>SQLite: A file-based SQL database, perfect for simple, local projects. No external database server setup required.
+<p>HTML/CSS (minimal): For the basic web interface.
 
 ## Step 1: Set Up Your Environment
-mkdir pos_project
-cd pos_project
+<p>mkdir pos_project
+<p>cd pos_project
 
 # Create a Virtual Environment: (Highly recommended for Python projects)
-python -m venv venv
-Activate Virtual Env:
-macOS/Linux: source venv/bin/activate
+<p>python -m venv venv
+<p>Activate Virtual Env:
+<p>macOS/Linux: source venv/bin/activate
 
 # Install Flask:
 pip install Flask --break-system-packages
