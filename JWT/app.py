@@ -36,6 +36,36 @@ def login():
 
     return jsonify(message="wrong!"), 401
 
-# 
+@app.route("/protected_resource")
+def protected_resource():
+    auth_header = request.headers.get("Authorization")
+
+    if not auth_header:
+        return jsonify(message="No AUTH Token provided"), 401
+
+    try:
+        # Check if the header starts with "Bearer " and extract the token
+        # Ex: "Bearer YOUR_TOKEN_HERE"
+        token_parts = auth_header.split(" ")
+        if len(token_parts) != 2 or token_parts[0].lower() != "bearer":
+            return jsonify(message="Invalid token format. Use 'Bearer <token>'."), 401
+        
+        token = token_parts[1]
+
+        # A mesma SECRET_KEY usada para codificar o token deve ser usada para decodificá-lo
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        user = payload["user"]
+        
+        return jsonify(message=f"Welcome, {user}! Thats a protected resource, you are in!"), 200
+    
+    except jwt.ExpiredSignatureError:
+        return jsonify(message="Expired token!"), 401
+    except jwt.InvalidTokenError:
+        return jsonify(message="Token is broken or invalid"), 401
+    except Exception as e:
+        # catch any other unexpected errors
+        print(f"unexpected error: {e}") # for debug
+        return jsonify(message=f"Internal Error: {str(e)}"), 500 # 500 Internal Server Error
+
 if __name__ == "__main__":
-    app.run(debug=True) # debug=True for development
+    app.run(debug=True) # debug=True for development purposes
