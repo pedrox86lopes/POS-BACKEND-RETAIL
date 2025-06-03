@@ -36,7 +36,7 @@ def login():
 
     return jsonify(message="wrong!"), 401
 
-@app.route("/protected_resource")
+@app.route("/protected_resource" , methods=["GET"])
 def protected_resource():
     auth_header = request.headers.get("Authorization")
 
@@ -52,7 +52,8 @@ def protected_resource():
         
         token = token_parts[1]
 
-        # A mesma SECRET_KEY usada para codificar o token deve ser usada para decodificá-lo
+        # The same secret key used for encoding the token
+        # Decode the token to get the user information
         payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
         user = payload["user"]
         

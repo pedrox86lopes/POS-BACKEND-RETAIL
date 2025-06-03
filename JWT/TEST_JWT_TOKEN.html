@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protect API</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #007bff;
+            --success: #28a745;
+            --danger: #dc3545;
+            --light-bg: #e0f2f7;
+            --white: #ffffff;
+            --text: #333;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--light-bg);
+            color: var(--text);
+        }
+
+        .container {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cce7ee;
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        button {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        #loginBtn {
+            background-color: var(--success);
+            color: var(--white);
+        }
+
+        #accessResource {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        #result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 6px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 350px;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>ACCESS THE PROTECTED API</h2>
+
+        <div class="button-group">
+            <button id="loginBtn">Login</button>
+            <button id="accessResource">Access Resource</button>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Login</h3>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">User:</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const elements = {
+            modal: document.getElementById('loginModal'),
+            loginBtn: document.getElementById('loginBtn'),
+            accessBtn: document.getElementById('accessResource'),
+            closeBtn: document.querySelector('.close'),
+            loginForm: document.getElementById('loginForm'),
+            username: document.getElementById('username'),
+            password: document.getElementById('password'),
+            result: document.getElementById('result')
+        };
+
+        // Event Listeners
+        elements.loginBtn.addEventListener('click', showModal);
+        elements.closeBtn.addEventListener('click', hideModal);
+        elements.loginForm.addEventListener('submit', handleLogin);
+        elements.accessBtn.addEventListener('click', accessResource);
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => e.target === elements.modal && hideModal());
+
+        // Functions
+        function showModal() {
+            elements.modal.style.display = 'flex';
+            elements.username.value = '';
+            elements.password.value = '';
+            clearResult();
+        }
+
+        function hideModal() {
+            elements.modal.style.display = 'none';
+        }
+
+        function showResult(message, type) {
+            elements.result.textContent = message;
+            elements.result.className = type;
+        }
+
+        function clearResult() {
+            elements.result.textContent = '';
+            elements.result.className = '';
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            try {
+                const response = await fetch('http://127.0.0.1:5000/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: elements.username.value,
+                        password: elements.password.value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.token) {
+                    localStorage.setItem('jwt_token', data.token);
+                    showResult('Token stored! Login successful.', 'success');
+                    hideModal();
+                } else {
+                    showResult(`Login error: ${data.message || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showResult('Network error. Please try again.', 'error');
+            }
+        }
+
+        async function accessResource() {
+            const token = localStorage.getItem('jwt_token');
+            
+            if (!token) {
+                showResult('Please login first', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/protected_resource', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`Resource accessed: ${data.message}`, 'success');
+                } else {
+                    showResult(`Error: ${data.message || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Access error:', error);
+                showResult('Failed to access resource', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
